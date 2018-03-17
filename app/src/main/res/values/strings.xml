@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Lyft</string>
+    <string name="ride">A Friendly Ride!</string>
+    <string name="look">LOOKING FOR THE LYFT?</string>
+    <string name="title">L Y F T</string>
+    <string name="title_activity_welcome">Map</string>
+    <string name="google_direction_api">AIzaSyDU9Ix_ruJhGrS6BAXXnOGEUogtvR4aNd8</string>
+    <string name="title_activity_rider__welcome">Map</string>
+    <string name="title_activity_rider__home">Rider_Home</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+</resources>

@@ -1,0 +1,59 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "26.0.0"
+    defaultConfig {
+        applicationId "com.example.wajid.lyft"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+            cruncherEnabled = false
+        }
+    }
+    defaultConfig {
+
+        // Enabling multidex support.
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    //libraries
+    compile 'de.hdodenhof:circleimageview:2.2.0'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-scalars:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    compile 'com.github.glomadrian:MaterialAnimatedSwitch:1.1@aar'
+    compile 'com.firebase:geofire-android:2.1.2'
+    compile 'com.github.d-max:spots-dialog:0.7@aar'
+    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'uk.co.chrisjenx:calligraphy:2.3.0'
+    compile 'com.rengwuxian.materialedittext:library:2.1.4'
+    compile 'com.google.firebase:firebase-database:11.8.0'
+    compile 'com.google.firebase:firebase-messaging:11.8.0'
+    compile 'com.google.firebase:firebase-auth:11.8.0'
+    compile 'com.android.support:design:26.0.0-alpha1'
+    compile 'com.android.support:cardview-v7:26.0.0-alpha1'
+    compile 'com.google.android.gms:play-services-maps:11.8.0'
+    compile 'com.google.android.gms:play-services:11.8.0'
+    compile 'com.android.support:multidex:1.0.0'
+    testCompile 'junit:junit:4.12'
+    compile 'com.google.code.gson:gson:2.8.2'
+}
+apply plugin: 'com.google.gms.google-services'
