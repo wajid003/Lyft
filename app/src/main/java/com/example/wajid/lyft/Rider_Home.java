@@ -148,10 +148,10 @@ public class Rider_Home extends AppCompatActivity
 
         btnPickupRequest = (Button)findViewById(R.id.btnPickupRaquest);
         btnPickupRequest.setOnClickListener(new View.OnClickListener(){
-
+            @Override
             public void onClick(View view){
 
-                if(isDriverFound)
+                if(!isDriverFound)
                     requestPickupHere(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 else 
                     sendRequestToDriver(driverId);
