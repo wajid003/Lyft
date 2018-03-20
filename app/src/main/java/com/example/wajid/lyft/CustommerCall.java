@@ -43,10 +43,14 @@ public class CustommerCall extends AppCompatActivity {
     IGoogleAPI mService;
 
 
+    public CustommerCall() {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custommer_call);
+
 
         mService = Common.getGoogleAPI();
 
@@ -71,8 +75,6 @@ public class CustommerCall extends AppCompatActivity {
     }
 
     private void getDirection(double lat,double lng) {
-
-
 
         String requestApi = null;
         try{

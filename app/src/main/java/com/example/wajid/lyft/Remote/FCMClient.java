@@ -11,6 +11,9 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 public class FCMClient {
     private static Retrofit retrofit = null;
 
+    public FCMClient() {
+    }
+
     public static Retrofit getClient (String baseURL)
     {
         if(retrofit == null)

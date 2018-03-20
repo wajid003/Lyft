@@ -16,6 +16,8 @@ public class BottomSheetRiderFragment extends BottomSheetDialogFragment {
 
     String mTag;
 
+    public BottomSheetRiderFragment() {
+    }
 
     public static BottomSheetRiderFragment newInstance(String tag)
     {

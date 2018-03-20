@@ -24,6 +24,9 @@ public class Common {
 
     public static Location mLastLocation = null;
 
+    public Common() {
+    }
+
     public static IGoogleAPI getGoogleAPI()
     {
         return RetrofitClient.getClient(baseURL).create(IGoogleAPI.class);

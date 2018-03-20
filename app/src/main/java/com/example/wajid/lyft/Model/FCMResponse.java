@@ -2,7 +2,7 @@ package com.example.wajid.lyft.Model;
 
 import java.util.List;
 
-import javax.xml.transform.Result;
+//import javax.xml.transform.Result;
 
 /**
  * Created by wajid on 13-Mar-18.
@@ -15,6 +15,7 @@ public class FCMResponse {
     public int failure;
     public int canonical_ids;
     public List<Result> results;
+
 
     public FCMResponse() {
     }

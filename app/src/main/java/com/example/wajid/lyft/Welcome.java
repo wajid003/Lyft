@@ -297,7 +297,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
     private void updateFirebaseToken() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference tokens = db.getReference("Tokens");
+        DatabaseReference tokens = db.getReference(Common.token_tbl);
 
         Token token = new Token(FirebaseInstanceId.getInstance().getToken());
         tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid())

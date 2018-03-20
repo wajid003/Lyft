@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import static android.R.attr.name;
 
@@ -15,14 +16,16 @@ import static android.R.attr.name;
  */
 
 public class MyFirebaseMessaging extends FirebaseMessagingService {
+    public MyFirebaseMessaging() {
+    }
 
-
-    public void onMessageRecieved(RemoteMessage remoteMessage){
+    public void onMessageReceived(RemoteMessage remoteMessage){
 
         LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getBody(),LatLng.class);
         Intent intent = new Intent(getBaseContext() , CustommerCall.class);
         intent.putExtra("lat",customer_location.latitude);
         intent.putExtra("lng",customer_location.longitude);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(intent);
     }

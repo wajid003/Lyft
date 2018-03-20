@@ -14,6 +14,7 @@ public class Result {
         this.message_id = message_id;
     }
 
+
     public String getMessage_id() {
         return message_id;
     }
