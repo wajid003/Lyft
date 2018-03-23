@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
@@ -94,6 +95,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
 
 
 
@@ -305,7 +307,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
     }
 
     private void getDirection() {
-        currentPosition = new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude());
+        currentPosition = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
 
         String requestApi = null;
         try{
@@ -528,12 +530,12 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
             return;
         }
-          Common.mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if(Common.mLastLocation!=null)
+          mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if(mLastLocation!=null)
         {
             if (location_switch.isChecked()) {
-                final double latitude = Common.mLastLocation.getLatitude();
-                final double longitude = Common.mLastLocation.getLongitude();
+                final double latitude = mLastLocation.getLatitude();
+                final double longitude = mLastLocation.getLongitude();
 
                 //update to Firebase
                 geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
@@ -627,7 +629,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onLocationChanged(Location location) {
-        Common.mLastLocation = location;
+        mLastLocation = location;
         displayLocation();
     }
 
