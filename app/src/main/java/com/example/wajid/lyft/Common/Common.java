@@ -2,6 +2,7 @@ package com.example.wajid.lyft.Common;
 
 import android.location.Location;
 
+import com.example.wajid.lyft.Model.User;
 import com.example.wajid.lyft.Remote.FCMClient;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
@@ -21,6 +22,8 @@ public class Common {
     public static final String baseURL = "https://maps.googleapis.com";
     public static final String fcmURL = "https://fcm.googleapis.com/";
     public static final String token_tbl = "Tokens";
+
+    public static User currentUser;
 
     public static Location mLastLocation = null;
 

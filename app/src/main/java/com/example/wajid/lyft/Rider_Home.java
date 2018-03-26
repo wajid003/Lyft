@@ -84,7 +84,7 @@ public class Rider_Home extends AppCompatActivity
     private static final int LIMIT = 3;
 
     //send Alert
-    IFCMService mService;
+    RiderFCMService mService;
 
     //Play Services
     private static  final int MY_PERMISSION_REQUEST_CODE = 7000;
@@ -110,7 +110,7 @@ public class Rider_Home extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mService = Common.getFCMService();
+        mService = Common.getRiderFCMService();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
