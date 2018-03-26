@@ -1,6 +1,9 @@
 package com.example.wajid.lyft.Service;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
 import com.example.wajid.lyft.CustommerCall;
 import com.google.android.gms.maps.model.LatLng;
@@ -13,17 +16,17 @@ import com.google.gson.Gson;
  */
 
 public class RIderMyFirebaseMessaging extends FirebaseMessagingService {
-    public RIderMyFirebaseMessaging() {
-    }
 
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
+    public void onMessageReceived(final RemoteMessage remoteMessage) {
 
-        LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getBody(),LatLng.class);
-        Intent intent = new Intent(getBaseContext() , CustommerCall.class);
-        intent.putExtra("lat",customer_location.latitude);
-        intent.putExtra("lng",customer_location.longitude);
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(RIderMyFirebaseMessaging.this,""+remoteMessage.getNotification().getBody(),Toast.LENGTH_SHORT).show();
 
-        startActivity(intent);
+            }
+        });
     }
 }

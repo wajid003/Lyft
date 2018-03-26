@@ -86,6 +86,8 @@ public class Rider_Home extends AppCompatActivity
     //send Alert
     IFCMService mService;
 
+
+
     //Play Services
     private static  final int MY_PERMISSION_REQUEST_CODE = 7000;
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
@@ -175,8 +177,8 @@ public class Rider_Home extends AppCompatActivity
 
                             //Make raw Payload - convert LatLng to json
                             String json_lat_lng = new Gson().toJson(new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude()));
-
-                            Notification data = new Notification("Lyft",json_lat_lng); // send to driver
+                            String riderToken = FirebaseInstanceId.getInstance().getToken();
+                            Notification data = new Notification(riderToken,json_lat_lng); // send to driver
                             Sender content = new Sender(token.getToken(),data);// send data to token
 
                             mService.sendMessage(content)
@@ -323,6 +325,7 @@ public class Rider_Home extends AppCompatActivity
         }
         Common.mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (Common.mLastLocation != null) {
+
             final double latitude = Common.mLastLocation.getLatitude();
             final double longitude = Common.mLastLocation.getLongitude();
 
@@ -345,8 +348,6 @@ public class Rider_Home extends AppCompatActivity
 
 
     private void LoadAllAvailableDriver() {
-
-
         // load all available drivers
 
         DatabaseReference driverLocation = FirebaseDatabase.getInstance().getReference("Driver");

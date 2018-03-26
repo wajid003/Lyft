@@ -190,6 +190,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
          mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
         // Get Location Manager and check for GPS & Network location services
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
@@ -221,7 +222,6 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
             public void onClick(View v) {
                 // Seperating users from drivers while using the app//
                 SeperateUsers();
-
                 startActivity(new Intent(Welcome.this,Rider_Home.class));
             }
         });
@@ -287,7 +287,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
 
         //Geo Fire
-        drivers = FirebaseDatabase.getInstance().getReference("Driver");
+        drivers = FirebaseDatabase.getInstance().getReference(Common.driver_tbl);
         geoFire = new GeoFire(drivers);
 
         setUpLocation();

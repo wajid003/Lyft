@@ -79,10 +79,12 @@
 
          <Button
              android:id="@+id/btn_find_user"
-             android:layout_width="0dp"
+             android:layout_width="300dp"
              android:layout_height="wrap_content"
-             android:layout_weight="7"
-             android:text="FIND LYFT" />
+             android:background="@drawable/btn_sign_in_background"
+             android:textColor="@android:color/white"
+             android:text="FIND LYFT"
+             android:textAlignment="center"/>
          </LinearLayout>
 
 

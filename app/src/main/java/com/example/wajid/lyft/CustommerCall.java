@@ -1,17 +1,25 @@
 package com.example.wajid.lyft;
 
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 
 import com.example.wajid.lyft.Common.Common;
+import com.example.wajid.lyft.Model.FCMResponse;
+import com.example.wajid.lyft.Model.Notification;
+import com.example.wajid.lyft.Model.Sender;
+import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
 import com.google.android.gms.maps.CameraUpdate;
@@ -37,11 +45,16 @@ import retrofit2.Response;
 public class CustommerCall extends AppCompatActivity {
 
     TextView txtTime,txtAddress,txtDistance;
+    Button btnAccept,btnDecline;
 
     MediaPlayer mediaPlayer;
 
     IGoogleAPI mService;
+    IFCMService mFCMService;
 
+    String customerId;
+
+    double lat,lng;
 
     public CustommerCall() {
     }
@@ -53,11 +66,37 @@ public class CustommerCall extends AppCompatActivity {
 
 
         mService = Common.getGoogleAPI();
+        mFCMService=Common.getFCMService();
 
         //init
         txtAddress = (TextView)findViewById(R.id.txtAddress);
         txtDistance = (TextView)findViewById(R.id.txtDistance);
         txtTime = (TextView)findViewById(R.id.txtTime);
+
+        btnAccept = (Button) findViewById(R.id.btnAccept);
+        btnDecline = (Button) findViewById(R.id.btnDecline);
+
+        btnDecline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(!TextUtils.isEmpty(customerId))
+                    cancelBooking(customerId);
+            }
+        });
+
+        btnAccept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CustommerCall.this,DriverTracking.class);
+                //sending location to new activity
+                intent.putExtra("lat",lat);
+                intent.putExtra("lng",lng);
+
+                startActivity(intent);
+                finish();
+            }
+        });
 
         mediaPlayer = MediaPlayer.create(this,R.raw.ringtone);
         mediaPlayer.setLooping(true);
@@ -65,13 +104,36 @@ public class CustommerCall extends AppCompatActivity {
 
         if(getIntent()!=null)
         {
-            double lat = getIntent().getDoubleExtra("lat",-1.0);
-            double lng = getIntent().getDoubleExtra("lng",-1.0);
+             lat = getIntent().getDoubleExtra("lat",-1.0);
+             lng = getIntent().getDoubleExtra("lng",-1.0);
+            customerId = getIntent().getStringExtra("customer");
 
             //get Direction code
             getDirection(lat,lng);
         }
 
+    }
+
+    private void cancelBooking(String customerId) {
+        Token token = new Token(customerId);
+
+        Notification notification = new Notification("Notice!","Driver has cancelled your request");
+        Sender sender = new Sender(token.getToken(),notification);
+
+        mFCMService.sendMessage(sender)
+                .enqueue(new Callback<FCMResponse>() {
+                    @Override
+                    public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                        if(response.body().success==1)
+                            Toast.makeText(CustommerCall.this,"Cancelled",Toast.LENGTH_SHORT).show();
+                             finish();
+                    }
+
+                    @Override
+                    public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+                    }
+                });
     }
 
     private void getDirection(double lat,double lng) {
