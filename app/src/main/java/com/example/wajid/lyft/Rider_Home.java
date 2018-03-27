@@ -175,8 +175,8 @@ public class Rider_Home extends AppCompatActivity
 
                             //Make raw Payload - convert LatLng to json
                             String json_lat_lng = new Gson().toJson(new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude()));
-
-                            Notification data = new Notification("Lyft",json_lat_lng); // send to driver
+                            String riderToken = FirebaseInstanceId.getInstance().getToken();
+                            Notification data = new Notification(riderToken,json_lat_lng); // send to driver
                             Sender content = new Sender(token.getToken(),data);// send data to token
 
                             mService.sendMessage(content)

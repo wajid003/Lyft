@@ -47,6 +47,36 @@
             android:textAlignment="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="16dp">
+            <Button
+                android:id="@+id/btnAccept"
+                android:background="@drawable/btn_sign_in_background"
+                android:textColor="@android:color/white"
+                android:text="ACCEPT"
+                android:layout_marginRight="6dp"
+                android:layout_marginBottom="40dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnDecline"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:layout_marginLeft="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_register_background"
+                android:text="DECLINE"
+                android:textColor="@color/btnRegister" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

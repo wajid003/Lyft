@@ -6,14 +6,22 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 
 import com.example.wajid.lyft.Common.Common;
+import com.example.wajid.lyft.Model.FCMResponse;
+import com.example.wajid.lyft.Model.Notification;
+import com.example.wajid.lyft.Model.Sender;
+import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
+import com.example.wajid.lyft.Remote.RiderFCMService;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -37,14 +45,15 @@ import retrofit2.Response;
 public class CustommerCall extends AppCompatActivity {
 
     TextView txtTime,txtAddress,txtDistance;
+    Button btnAccept,btnDecline;
 
     MediaPlayer mediaPlayer;
 
     IGoogleAPI mService;
+    RiderFCMService mFCMService;
 
+    String customerId;
 
-    public CustommerCall() {
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +62,22 @@ public class CustommerCall extends AppCompatActivity {
 
 
         mService = Common.getGoogleAPI();
+        mFCMService = Common.getRiderFCMService();
 
         //init
         txtAddress = (TextView)findViewById(R.id.txtAddress);
         txtDistance = (TextView)findViewById(R.id.txtDistance);
         txtTime = (TextView)findViewById(R.id.txtTime);
+
+        btnAccept = (Button)findViewById(R.id.btnAccept);
+        btnDecline = (Button)findViewById(R.id.btnDecline);
+
+        btnDecline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(CustommerCall.this,"Cancelled!",Toast.LENGTH_SHORT).show();
+            }
+        });
 
         mediaPlayer = MediaPlayer.create(this,R.raw.ringtone);
         mediaPlayer.setLooping(true);
@@ -67,6 +87,7 @@ public class CustommerCall extends AppCompatActivity {
         {
             double lat = getIntent().getDoubleExtra("lat",-1.0);
             double lng = getIntent().getDoubleExtra("lng",-1.0);
+            customerId = getIntent().getStringExtra("customer");
 
             //get Direction code
             getDirection(lat,lng);
