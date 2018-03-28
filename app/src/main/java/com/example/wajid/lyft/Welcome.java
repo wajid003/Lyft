@@ -128,6 +128,9 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
     private IGoogleAPI mService;
 
+    //presence system
+    DatabaseReference onlineRef,currentUserRef;
+
     Runnable drawPathRunnable=new Runnable() {
         @Override
         public void run() {
@@ -190,6 +193,23 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
          mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //presence system
+        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
+        currentUserRef = FirebaseDatabase.getInstance().getReference("Driver")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        onlineRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currentUserRef.onDisconnect().removeValue();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         // Get Location Manager and check for GPS & Network location services
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
@@ -220,7 +240,9 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
             @Override
             public void onClick(View v) {
                 // Seperating users from drivers while using the app//
-                SeperateUsers();
+                /*SeperateUsers();*/
+                //presence system
+                FirebaseDatabase.getInstance().goOffline();
 
                 startActivity(new Intent(Welcome.this,Rider_Home.class));
             }
@@ -233,6 +255,8 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
                 if(isOnline)
                 {
+                    //presence system
+                    FirebaseDatabase.getInstance().goOnline();
                     startLocationUpdates();
                     displayLocation();
                     Snackbar snack = Snackbar.make(mapFragment.getView(),"You are Online",Snackbar.LENGTH_LONG);
@@ -242,7 +266,10 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
                     snack.show();
                 }
                  else{
-                    SeperateUsers();
+
+                    //presence system
+                    FirebaseDatabase.getInstance().goOffline();
+                    /*SeperateUsers();*/
                     stopLocationUpdate();
                     mCurrent.remove();
                     mMap.clear();;
@@ -633,7 +660,29 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
         displayLocation();
     }
 
-    public void SeperateUsers()
+    private boolean isInFront;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isInFront = true;
+        if(location_switch.isChecked())
+        {
+            //presence system
+            FirebaseDatabase.getInstance().goOnline();
+            startLocationUpdates();
+            displayLocation();
+            Snackbar snack = Snackbar.make(mapFragment.getView(),"You are Online",Snackbar.LENGTH_LONG);
+            View view = snack.getView();
+            TextView tv = (TextView) view.findViewById(android.support.design.R.id.snackbar_text);
+            tv.setTextColor(Color.WHITE);
+            snack.show();
+        }
+        else{
+            Toast.makeText(Welcome.this,"Please switch on the Driver Mode to go ONLINE",Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /* public void SeperateUsers()
     {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
@@ -654,7 +703,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
             }
         });
-    }
+    }*/
 }
 
 

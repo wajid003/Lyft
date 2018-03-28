@@ -77,6 +77,7 @@ public class CustommerCall extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(CustommerCall.this,"Cancelled!",Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
 

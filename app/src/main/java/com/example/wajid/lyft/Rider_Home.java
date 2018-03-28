@@ -86,6 +86,9 @@ public class Rider_Home extends AppCompatActivity
     //send Alert
     RiderFCMService mService;
 
+    //presence System
+    DatabaseReference driversAvailable;
+
     //Play Services
     private static  final int MY_PERMISSION_REQUEST_CODE = 7000;
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
@@ -109,6 +112,10 @@ public class Rider_Home extends AppCompatActivity
         setContentView(R.layout.activity_rider__home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //presence system
+        FirebaseDatabase.getInstance().goOnline();
+
 
         mService = Common.getRiderFCMService();
 
@@ -323,6 +330,21 @@ public class Rider_Home extends AppCompatActivity
         }
         Common.mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (Common.mLastLocation != null) {
+
+            //presence system
+            driversAvailable = FirebaseDatabase.getInstance().getReference("Driver");
+            driversAvailable.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    //reload any change from driver table
+                    LoadAllAvailableDriver();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
             final double latitude = Common.mLastLocation.getLatitude();
             final double longitude = Common.mLastLocation.getLongitude();
 
@@ -345,6 +367,13 @@ public class Rider_Home extends AppCompatActivity
 
 
     private void LoadAllAvailableDriver() {
+        //presence system
+        mMap.clear();
+
+        mMap.addMarker(new MarkerOptions().position(new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude()))
+        .title("You"));
+
+
 
 
         // load all available drivers
