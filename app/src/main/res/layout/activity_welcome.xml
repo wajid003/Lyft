@@ -81,7 +81,7 @@
                  android:layout_height="wrap_content"
                  android:background="@drawable/btn_sign_in_background"
                  android:text="FIND LYFT"
-                 android:textColor="@android:color/white"/>
+                 android:textColor="@android:color/black"/>
          </LinearLayout>
 
 
