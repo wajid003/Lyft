@@ -30,7 +30,6 @@ import com.example.wajid.lyft.Model.Sender;
 import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Model.User;
 import com.example.wajid.lyft.Remote.IFCMService;
-import com.example.wajid.lyft.Remote.RiderFCMService;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -57,7 +56,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -84,7 +82,7 @@ public class Rider_Home extends AppCompatActivity
     private static final int LIMIT = 3;
 
     //send Alert
-    RiderFCMService mService;
+    IFCMService mService;
 
     //presence System
     DatabaseReference driversAvailable;
@@ -117,7 +115,7 @@ public class Rider_Home extends AppCompatActivity
         FirebaseDatabase.getInstance().goOnline();
 
 
-        mService = Common.getRiderFCMService();
+        mService = Common.getFCMService();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -194,6 +192,8 @@ public class Rider_Home extends AppCompatActivity
                                                 Toast.makeText(Rider_Home.this, "Request Sent!", Toast.LENGTH_SHORT).show();
                                             else
                                                 Toast.makeText(Rider_Home.this,"Failed !", Toast.LENGTH_SHORT).show();
+
+                                            Common.alreadyExecuted = false;
 
                                         }
 

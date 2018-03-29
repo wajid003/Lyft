@@ -1,43 +1,22 @@
 package com.example.wajid.lyft;
 
-import android.animation.ValueAnimator;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.MediaPlayer;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 
 import com.example.wajid.lyft.Common.Common;
-import com.example.wajid.lyft.Model.FCMResponse;
-import com.example.wajid.lyft.Model.Notification;
-import com.example.wajid.lyft.Model.Sender;
-import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
-import com.example.wajid.lyft.Remote.RiderFCMService;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.JointType;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.SquareCap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,7 +30,7 @@ public class CustommerCall extends AppCompatActivity {
     MediaPlayer mediaPlayer;
 
     IGoogleAPI mService;
-    RiderFCMService mFCMService;
+    IFCMService mFCMService;
 
     String customerId;
 
@@ -61,9 +40,10 @@ public class CustommerCall extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custommer_call);
 
+        Common.alreadyExecuted = false;
 
         mService = Common.getGoogleAPI();
-        mFCMService = Common.getRiderFCMService();
+        mFCMService = Common.getFCMService();
 
         //init
         txtAddress = (TextView)findViewById(R.id.txtAddress);
@@ -87,6 +67,7 @@ public class CustommerCall extends AppCompatActivity {
                 Intent intent = new Intent(CustommerCall.this,DriverTracking.class);
                 intent.putExtra("lat",lat);
                 intent.putExtra("lng",lng);
+                intent.putExtra("customerId",customerId);
 
                 startActivity(intent);
                 finish();

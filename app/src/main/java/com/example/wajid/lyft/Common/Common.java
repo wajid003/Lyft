@@ -7,7 +7,6 @@ import com.example.wajid.lyft.Remote.FCMClient;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
 import com.example.wajid.lyft.Remote.RetrofitClient;
-import com.example.wajid.lyft.Remote.RiderFCMService;
 
 /**
  * Created by wajid on 13-Feb-18.
@@ -25,6 +24,8 @@ public class Common {
 
     public static User currentUser;
 
+    public static Boolean alreadyExecuted = false;
+
     public static Location mLastLocation = null;
 
     public Common() {
@@ -40,8 +41,8 @@ public class Common {
         return FCMClient.getClient(fcmURL).create(IFCMService.class);
     }
 
-    public static RiderFCMService getRiderFCMService()
+    /*public static RiderFCMService getRiderFCMService()
     {
         return FCMClient.getClient(fcmURL).create(RiderFCMService.class);
-    }
+    }*/
 }

@@ -20,9 +20,16 @@ import android.widget.Toast;
 
 import com.example.wajid.lyft.Common.Common;
 import com.example.wajid.lyft.Helper.DirectionJSONParser;
+import com.example.wajid.lyft.Model.FCMResponse;
+import com.example.wajid.lyft.Model.Notification;
+import com.example.wajid.lyft.Model.Sender;
+import com.example.wajid.lyft.Model.Token;
+import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -47,6 +54,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,6 +77,8 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
 
     double riderLat,riderLng;
 
+    String customerId;
+
     //Play Services
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
 
@@ -88,6 +98,9 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
     private Polyline direction;
 
     IGoogleAPI mService;
+    IFCMService mFCMService;
+
+    GeoFire geoFire;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,12 +115,16 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
         {
             riderLat = getIntent().getDoubleExtra("lat",-1.0);
             riderLng = getIntent().getDoubleExtra("lng",-1.0);
+            customerId = getIntent().getStringExtra("customerId");
 ;
         }
 
         mService = Common.getGoogleAPI();
+        mFCMService = Common.getFCMService();
 
         setUpLocation();
+
+
     }
 
     public void setUpLocation() {
@@ -158,10 +175,66 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
 
         riderMarker = mMap.addCircle(new CircleOptions()
         .center(new LatLng(riderLat,riderLng))
-        .radius(50)
+        .radius(50) //50m as radius
         .strokeColor(Color.BLUE)
          .fillColor(0x220000FF)
           .strokeWidth(5.0F));
+
+        //Creating Geo Fencing with 50m radius
+        geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference(Common.driver_tbl));
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(riderLat,riderLng),0.05f);
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                //customerid = riderid
+                //passing it from previous activity
+                sendArrivedNotification(customerId);
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    private void sendArrivedNotification(String customerId) {
+        Token token = new Token(customerId);
+        //send notification with title Arrived and body: name of the driver
+        Notification notification = new Notification("Arrived!",String.format("Driver %s has arrived at your location!",Common.currentUser.getName()));
+        Sender sender = new Sender(token.getToken(),notification);
+
+        mFCMService.sendMessage(sender).enqueue(new Callback<FCMResponse>() {
+            @Override
+            public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                if(response.body().success!=1)
+                {
+                    Toast.makeText(DriverTracking.this,"Failed",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+            }
+        });
+
 
     }
 
@@ -323,5 +396,10 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
             }
             direction = mMap.addPolyline(polylineOptions);
         }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
     }
 }

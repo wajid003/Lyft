@@ -252,6 +252,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
         location_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(boolean isOnline) {
+                Common.alreadyExecuted = true;
 
                 if(isOnline)
                 {
@@ -667,6 +668,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
         isInFront = true;
         if(location_switch.isChecked())
         {
+            Common.alreadyExecuted = true;
             //presence system
             FirebaseDatabase.getInstance().goOnline();
             startLocationUpdates();
