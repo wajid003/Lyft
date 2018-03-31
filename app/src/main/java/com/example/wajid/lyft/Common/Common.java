@@ -26,7 +26,7 @@ public class Common {
 
     public static Boolean alreadyExecuted = false;
 
-    public static Location mLastLocation = null;
+    public static Location mLastLocation=null;
 
     public Common() {
     }

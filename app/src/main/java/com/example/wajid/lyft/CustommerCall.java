@@ -1,6 +1,7 @@
 package com.example.wajid.lyft;
 
 import android.content.Intent;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,10 @@ import android.widget.Toast;
 import android.widget.Button;
 
 import com.example.wajid.lyft.Common.Common;
+import com.example.wajid.lyft.Model.FCMResponse;
+import com.example.wajid.lyft.Model.Notification;
+import com.example.wajid.lyft.Model.Sender;
+import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
 
@@ -32,9 +37,11 @@ public class CustommerCall extends AppCompatActivity {
     IGoogleAPI mService;
     IFCMService mFCMService;
 
+
     String customerId;
 
     double lat,lng;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +56,17 @@ public class CustommerCall extends AppCompatActivity {
         txtAddress = (TextView)findViewById(R.id.txtAddress);
         txtDistance = (TextView)findViewById(R.id.txtDistance);
         txtTime = (TextView)findViewById(R.id.txtTime);
+
+        if(getIntent()!=null)
+        {
+            lat = getIntent().getDoubleExtra("lat",-1.0);
+            lng = getIntent().getDoubleExtra("lng",-1.0);
+            customerId = getIntent().getStringExtra("customer");
+
+            //get Direction code
+            getDirection(lat,lng);
+        }
+
 
         btnAccept = (Button)findViewById(R.id.btnAccept);
         btnDecline = (Button)findViewById(R.id.btnDecline);
@@ -69,34 +87,53 @@ public class CustommerCall extends AppCompatActivity {
                 intent.putExtra("lng",lng);
                 intent.putExtra("customerId",customerId);
 
+                readytochat(customerId);
+
                 startActivity(intent);
                 finish();
             }
         });
 
+
         mediaPlayer = MediaPlayer.create(this,R.raw.ringtone);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
 
-        if(getIntent()!=null)
-        {
-             lat = getIntent().getDoubleExtra("lat",-1.0);
-             lng = getIntent().getDoubleExtra("lng",-1.0);
-            customerId = getIntent().getStringExtra("customer");
+    }
 
-            //get Direction code
-            getDirection(lat,lng);
-        }
+    private void readytochat(String customerId) {
+        Token token = new Token(customerId);
+        Notification notification = new Notification("Chat!", "You are ready to chat with driver");
+        Sender sender = new Sender(token.getToken(),notification);
+
+        mFCMService.sendMessage(sender)
+                .enqueue(new Callback<FCMResponse>() {
+                    @Override
+                    public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                        if(response.body().success == 1)
+                        {
+                            Toast.makeText(CustommerCall.this,"You are ready to chat!",Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+                    }
+                });
 
     }
 
     private void getDirection(double lat,double lng) {
 
         String requestApi = null;
+
         try{
+
             requestApi = "https://maps.googleapis.com/maps/api/directions/json?"+
                     "origin="+Common.mLastLocation.getLatitude()+","+Common.mLastLocation.getLongitude()+"&"+
-                    "destination="+lat+" , "+lng+"&"+
+                    "destination="+lat+","+lng+"&"+
                     "key="+getResources().getString(R.string.google_direction_api);
 
             Log.d("LYFT",requestApi);// print url for debug
@@ -129,9 +166,6 @@ public class CustommerCall extends AppCompatActivity {
                                 //get address
                                 String address = legsObject.getString("end_address");
                                 txtAddress.setText(address);
-
-
-
 
                             } catch (JSONException e) {
                                 e.printStackTrace();

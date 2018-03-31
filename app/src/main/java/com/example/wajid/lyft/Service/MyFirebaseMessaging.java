@@ -5,11 +5,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
 
 import com.example.wajid.lyft.Common.Common;
 import com.example.wajid.lyft.CustommerCall;
 import com.example.wajid.lyft.R;
+import com.example.wajid.lyft.RiderChat;
+import com.example.wajid.lyft.Rider_Home;
+import com.example.wajid.lyft.Welcome;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -25,9 +31,21 @@ import static android.R.attr.name;
 
 public class MyFirebaseMessaging extends FirebaseMessagingService {
 
-    public void onMessageReceived(RemoteMessage remoteMessage) {
+    public void onMessageReceived(final RemoteMessage remoteMessage) {
 
-        if (remoteMessage.getNotification().getTitle().equals("Arrived!")) {
+        if(remoteMessage.getNotification().getTitle().equals("Chat!")) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MyFirebaseMessaging.this, "" + remoteMessage.getNotification().getBody(), Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(getBaseContext(), RiderChat.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+            }
+            });
+        } else  if (remoteMessage.getNotification().getTitle().equals("Arrived!")) {
             if(!Common.alreadyExecuted) {
                 showArrivedNotification(remoteMessage.getNotification().getBody());
                 Common.alreadyExecuted = true;
@@ -36,11 +54,10 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
             try {
                 LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getBody(), LatLng.class);
                 Intent intent = new Intent(getBaseContext(), CustommerCall.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("lat", customer_location.latitude);
                 intent.putExtra("lng", customer_location.longitude);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("customer", remoteMessage.getNotification().getTitle());
-
                 startActivity(intent);
 
             } catch (JsonSyntaxException e) {

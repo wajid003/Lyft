@@ -6,6 +6,7 @@ import android.animation.ValueAnimator;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -16,7 +17,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.animation.LinearInterpolator;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.Button;
 
 import com.example.wajid.lyft.Common.Common;
 import com.example.wajid.lyft.Helper.DirectionJSONParser;
@@ -68,6 +71,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.wajid.lyft.R.drawable.btn_sign_in_background;
+
 public class DriverTracking extends FragmentActivity implements OnMapReadyCallback,
    GoogleApiClient.OnConnectionFailedListener,
    GoogleApiClient.ConnectionCallbacks,
@@ -106,10 +111,19 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_tracking);
+
+        /*//creating chat button
+        panel = (LinearLayout) findViewById(R.id.panel);
+        Button chat = new Button(DriverTracking.this);
+        chat.setText("CONTACT DRIVER");
+        chat.setBackgroundDrawable(getResources().getDrawable(btn_sign_in_background));
+        panel.addView(chat);*/
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         if(getIntent()!=null)
         {
@@ -186,6 +200,7 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
+
                 //customerid = riderid
                 //passing it from previous activity
                 sendArrivedNotification(customerId);
