@@ -70,7 +70,8 @@
         <activity
             android:name=".DriverTracking"
             android:label="@string/title_activity_driver_tracking" />
-        <activity android:name=".RiderChat"></activity>
+        <activity android:name=".RiderChat" />
+        <activity android:name=".ChatWindow"></activity>
     </application>
 
 </manifest>

@@ -17,6 +17,7 @@ import com.example.wajid.lyft.RiderChat;
 import com.example.wajid.lyft.Rider_Home;
 import com.example.wajid.lyft.Welcome;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -33,14 +34,19 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 
     public void onMessageReceived(final RemoteMessage remoteMessage) {
 
-        if(remoteMessage.getNotification().getTitle().equals("Chat!")) {
+        String Rider = null;
+
+
+        if(remoteMessage.getNotification().getTitle().equals(Common.customerId)) {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(MyFirebaseMessaging.this, "" + remoteMessage.getNotification().getBody(), Toast.LENGTH_SHORT).show();
-
+                    Common.customerId = remoteMessage.getNotification().getTitle();
+                    Common.Driverids = remoteMessage.getNotification().getBody();
                     Intent intent = new Intent(getBaseContext(), RiderChat.class);
+                    intent.putExtra("DriverId",Common.Driverids);
+                    intent.putExtra("RiderId",Common.customerId);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
             }
@@ -50,7 +56,8 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 showArrivedNotification(remoteMessage.getNotification().getBody());
                 Common.alreadyExecuted = true;
             }
-        } else {
+        }
+        else {
             try {
                 LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getBody(), LatLng.class);
                 Intent intent = new Intent(getBaseContext(), CustommerCall.class);
@@ -58,12 +65,14 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 intent.putExtra("lat", customer_location.latitude);
                 intent.putExtra("lng", customer_location.longitude);
                 intent.putExtra("customer", remoteMessage.getNotification().getTitle());
+                intent.putExtra("RiderId",Rider);
                 startActivity(intent);
 
             } catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     private void showArrivedNotification(String body) {

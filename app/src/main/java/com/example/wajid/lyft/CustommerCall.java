@@ -18,6 +18,7 @@ import com.example.wajid.lyft.Model.Sender;
 import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,8 +38,6 @@ public class CustommerCall extends AppCompatActivity {
     IGoogleAPI mService;
     IFCMService mFCMService;
 
-
-    String customerId;
 
     double lat,lng;
 
@@ -61,7 +60,8 @@ public class CustommerCall extends AppCompatActivity {
         {
             lat = getIntent().getDoubleExtra("lat",-1.0);
             lng = getIntent().getDoubleExtra("lng",-1.0);
-            customerId = getIntent().getStringExtra("customer");
+            Common.customerId = getIntent().getStringExtra("customer");
+            Common.RiderId = getIntent().getStringExtra("RiderId");
 
             //get Direction code
             getDirection(lat,lng);
@@ -85,9 +85,10 @@ public class CustommerCall extends AppCompatActivity {
                 Intent intent = new Intent(CustommerCall.this,DriverTracking.class);
                 intent.putExtra("lat",lat);
                 intent.putExtra("lng",lng);
-                intent.putExtra("customerId",customerId);
+                intent.putExtra("customerId",Common.customerId);
+                intent.putExtra("RiderId",Common.RiderId);
 
-                readytochat(customerId);
+                readytochat(Common.customerId);
 
                 startActivity(intent);
                 finish();
@@ -103,7 +104,9 @@ public class CustommerCall extends AppCompatActivity {
 
     private void readytochat(String customerId) {
         Token token = new Token(customerId);
-        Notification notification = new Notification("Chat!", "You are ready to chat with driver");
+        Common.customerId=customerId;
+        Common.Driverids = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Notification notification = new Notification(Common.customerId, Common.Driverids);
         Sender sender = new Sender(token.getToken(),notification);
 
         mFCMService.sendMessage(sender)

@@ -28,7 +28,7 @@
         app:cardElevation="10dp">
 
         <Button
-            android:id="@+id/btn_find_user"
+            android:id="@+id/contact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_sign_in_background"

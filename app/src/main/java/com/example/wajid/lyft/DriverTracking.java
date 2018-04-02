@@ -4,6 +4,7 @@ import android.*;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -16,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -63,6 +65,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,12 +115,25 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_tracking);
 
-        /*//creating chat button
-        panel = (LinearLayout) findViewById(R.id.panel);
-        Button chat = new Button(DriverTracking.this);
-        chat.setText("CONTACT DRIVER");
-        chat.setBackgroundDrawable(getResources().getDrawable(btn_sign_in_background));
-        panel.addView(chat);*/
+        if(getIntent()!=null)
+        {
+            riderLat = getIntent().getDoubleExtra("lat",-1.0);
+            riderLng = getIntent().getDoubleExtra("lng",-1.0);
+            customerId = getIntent().getStringExtra("customerId");
+            Common.customerId = customerId;
+        }
+
+       Button contact = (Button)findViewById(R.id.contact);
+        contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Common.Driverids=FirebaseAuth.getInstance().getCurrentUser().getUid();
+                Intent intent = new Intent(DriverTracking.this,ChatWindow.class);
+                intent.putExtra("Driver",Common.customerId);
+                intent.putExtra("Rider",Common.Driverids);
+                startActivity(intent);
+            }
+        });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -125,13 +141,7 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
         mapFragment.getMapAsync(this);
 
 
-        if(getIntent()!=null)
-        {
-            riderLat = getIntent().getDoubleExtra("lat",-1.0);
-            riderLng = getIntent().getDoubleExtra("lng",-1.0);
-            customerId = getIntent().getStringExtra("customerId");
-;
-        }
+
 
         mService = Common.getGoogleAPI();
         mFCMService = Common.getFCMService();

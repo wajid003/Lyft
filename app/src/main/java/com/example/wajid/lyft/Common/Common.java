@@ -28,6 +28,12 @@ public class Common {
 
     public static Location mLastLocation=null;
 
+    public static String Driverids;
+
+    public static String customerId;
+
+    public static String RiderId;
+
     public Common() {
     }
 

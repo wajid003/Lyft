@@ -26,6 +26,7 @@ import com.example.wajid.lyft.Common.Common;
 import com.example.wajid.lyft.Helper.CustomInfoWindow;
 import com.example.wajid.lyft.Model.FCMResponse;
 import com.example.wajid.lyft.Model.Notification;
+import com.example.wajid.lyft.Model.Notifications;
 import com.example.wajid.lyft.Model.Sender;
 import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Model.User;
@@ -60,6 +61,8 @@ import com.google.gson.Gson;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.example.wajid.lyft.Common.Common.customerId;
 
 public class Rider_Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
@@ -103,7 +106,7 @@ public class Rider_Home extends AppCompatActivity
     GeoFire geoFire;
 
     Marker mUserMarker;
-    Welcome welcome = new Welcome();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,6 +173,8 @@ public class Rider_Home extends AppCompatActivity
     private void sendRequestToDriver(String driverId) {
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference(Common.token_tbl);
 
+        /*sendriderid();*/
+
         tokens.orderByKey().equalTo(driverId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -180,8 +185,9 @@ public class Rider_Home extends AppCompatActivity
 
                             //Make raw Payload - convert LatLng to json
                             String json_lat_lng = new Gson().toJson(new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude()));
-                            String riderToken = FirebaseInstanceId.getInstance().getToken();
-                            Notification data = new Notification(riderToken,json_lat_lng); // send to driver
+                            Common.customerId = FirebaseInstanceId.getInstance().getToken();
+                            String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                            Notification data = new Notification(Common.customerId,json_lat_lng); // send to driver
                             Sender content = new Sender(token.getToken(),data);// send data to token
 
                             mService.sendMessage(content)
@@ -213,6 +219,30 @@ public class Rider_Home extends AppCompatActivity
                     }
                 });
     }
+
+   /* private void sendriderid() {
+
+        Common.RiderId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Token token = new Token(Common.RiderId);
+        Notification notification = new Notification("RiderId",Common.RiderId);
+        Sender sender = new Sender(token.getToken(),notification);
+
+        mService.sendMessage(sender)
+                .enqueue(new Callback<FCMResponse>() {
+                    @Override
+                    public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                        Toast.makeText(getBaseContext(),"You are connected with driver",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+                    }
+                });
+
+
+    }*/
+
 
     private void requestPickupHere(String uid) {
         DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("PickupRequest");
@@ -250,7 +280,7 @@ public class Rider_Home extends AppCompatActivity
                         isDriverFound = true;
                         driverId = key;
                         btnPickupRequest.setText("CALL DRIVER");
-                        Toast.makeText(Rider_Home.this, "" + key, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Rider_Home.this, "Driver Found!", Toast.LENGTH_SHORT).show();
 
                     }
                 }
@@ -394,7 +424,6 @@ public class Rider_Home extends AppCompatActivity
                                      public void onDataChange(DataSnapshot dataSnapshot) {
                                          // because rider and user model is same
                                          User rider = dataSnapshot.getValue(User.class);
-
 
                                      //Add driver to map
 
