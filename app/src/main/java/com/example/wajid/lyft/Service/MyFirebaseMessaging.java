@@ -38,6 +38,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 
 
         if(remoteMessage.getNotification().getTitle().equals(Common.customerId)) {
+            Common.commonrequest=false;
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 @Override
@@ -59,12 +60,12 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         }
         else {
             try {
-                LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getBody(), LatLng.class);
+                LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getTitle(), LatLng.class);
                 Intent intent = new Intent(getBaseContext(), CustommerCall.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("lat", customer_location.latitude);
                 intent.putExtra("lng", customer_location.longitude);
-                intent.putExtra("customer", remoteMessage.getNotification().getTitle());
+                intent.putExtra("customer", remoteMessage.getNotification().getBody());
                 intent.putExtra("RiderId",Rider);
                 startActivity(intent);
 

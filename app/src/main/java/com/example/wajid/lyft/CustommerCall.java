@@ -41,6 +41,7 @@ public class CustommerCall extends AppCompatActivity {
 
     double lat,lng;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +104,7 @@ public class CustommerCall extends AppCompatActivity {
     }
 
     private void readytochat(String customerId) {
+        Common.commonrequest = true;
         Token token = new Token(customerId);
         Common.customerId=customerId;
         Common.Driverids = FirebaseAuth.getInstance().getCurrentUser().getUid();

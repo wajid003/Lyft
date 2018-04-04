@@ -10,10 +10,15 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.example.wajid.lyft.Common.Common;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+import com.google.android.gms.vision.text.Text;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,10 +33,11 @@ public class ChatWindow extends AppCompatActivity {
     ImageView sendButton;
     EditText messageArea;
     ScrollView scrollView;
-    Firebase reference1, reference2;
+    Firebase reference1, reference2, reference3, reference4;
 
     String Driver;
     String Rider;
+    String destinations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +59,44 @@ public class ChatWindow extends AppCompatActivity {
         Firebase.setAndroidContext(this);
         reference1 = new Firebase("https://lift-ef7da.firebaseio.com/messages/" + Rider + "_" + Driver );
         reference2 = new Firebase("https://lift-ef7da.firebaseio.com/messages/" + Driver + "_" + Rider);
+        reference3 = new Firebase("https://lift-ef7da.firebaseio.com/messages/Destination/" + Rider + "_" + Driver);
+        reference4 = new Firebase("https://lift-ef7da.firebaseio.com/messages/Destination/" + Driver + "_" + Rider);
+
+        final TextView destinations = (TextView) findViewById(R.id.destination);
+
+
+
+
+          reference3.addChildEventListener(new ChildEventListener() {
+              @Override
+              public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                  Map map = dataSnapshot.getValue(Map.class);
+                  String destination = map.get("destination").toString();
+                  String place = "DESTINATION :\n " + destination;
+                  destinations.setText(place);
+
+              }
+
+              @Override
+              public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+              }
+
+              @Override
+              public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+              }
+
+              @Override
+              public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+              }
+
+              @Override
+              public void onCancelled(FirebaseError firebaseError) {
+
+              }
+          });
 
        sendButton.setOnClickListener(new View.OnClickListener() {
            @Override

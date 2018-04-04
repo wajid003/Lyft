@@ -2,7 +2,9 @@ package com.example.wajid.lyft;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,6 +35,11 @@ import com.example.wajid.lyft.Model.User;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.identity.intents.Address;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.firebase.geofire.GeoFire;
@@ -58,11 +65,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.example.wajid.lyft.Common.Common.customerId;
+import static com.example.wajid.lyft.R.layout.activity_rider__home;
 
 public class Rider_Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
@@ -107,12 +119,18 @@ public class Rider_Home extends AppCompatActivity
 
     Marker mUserMarker;
 
+    PlaceAutocompleteFragment place_destination;
+
+    String mPlaceLocation;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rider__home);
+        setContentView(activity_rider__home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         //presence system
         FirebaseDatabase.getInstance().goOnline();
@@ -126,36 +144,76 @@ public class Rider_Home extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        /*NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+*/
 
         //Maps
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         imgExpandable = (ImageView) findViewById(R.id.imgExpandable);
-        nBottomSheet = BottomSheetRiderFragment.newInstance("Rider bottom sheet");
-        imgExpandable.setOnClickListener(new View.OnClickListener() {
+
+           btnPickupRequest = (Button) findViewById(R.id.btnPickupRaquest);
+           btnPickupRequest.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                       if (!isDriverFound)
+                           requestPickupHere(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                       else
+                           sendRequestToDriver(driverId);
+
+               }
+           });
+
+
+
+       /* geocoder = new Geocoder(this, Locale.getDefault());
+
+
+        try {
+            addresses = geocoder.getFromLocation(latitude,longitude,1);
+
+            String address = addresses.get(0).getAddressLine(0);
+            String area = addresses.get(0).getLocality();
+            String city = addresses.get(0).getAdminArea();
+
+            mPlaceLocation = address+", "+area+", "+city;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+
+        place_destination = (PlaceAutocompleteFragment)getFragmentManager().findFragmentById(R.id.place_destination);
+
+        //Event
+        place_destination.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onClick(View v) {
-                nBottomSheet.show(getSupportFragmentManager(),nBottomSheet.getTag());
+            public void onPlaceSelected(Place place) {
+
+                Common.mPlaceDestination = place.getAddress().toString();
+
+                //Adding new destination marker
+                mMap.addMarker(new MarkerOptions().position(place.getLatLng())
+                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(),15.0f));
+
+                Rider_Home.super.onPostResume();
+
+                // showing information at bottom sheet
+               /* BottomSheetRiderFragment mBottomSheet = BottomSheetRiderFragment.newInstance(mPlaceLocation,Common.mPlaceDestination);*/
+                  /*  mBottomSheet.show(getSupportFragmentManager(),mBottomSheet.getTag());*/
+            }
+
+            @Override
+            public void onError(Status status) {
+
             }
         });
 
-        btnPickupRequest = (Button)findViewById(R.id.btnPickupRaquest);
-        btnPickupRequest.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-
-                if(!isDriverFound)
-                    requestPickupHere(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                else 
-                    sendRequestToDriver(driverId);
-        }
-    });
-
         setUpLocation();
+
 
         updateFirebaseToken();
     }
@@ -187,7 +245,7 @@ public class Rider_Home extends AppCompatActivity
                             String json_lat_lng = new Gson().toJson(new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude()));
                             Common.customerId = FirebaseInstanceId.getInstance().getToken();
                             String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                            Notification data = new Notification(Common.customerId,json_lat_lng); // send to driver
+                            Notification data = new Notification(json_lat_lng,Common.customerId); // send to driver
                             Sender content = new Sender(token.getToken(),data);// send data to token
 
                             mService.sendMessage(content)
@@ -432,7 +490,6 @@ public class Rider_Home extends AppCompatActivity
                                                  .position(new LatLng(location.latitude,location.longitude))
                                                  .flat(true)
                                                  .title(rider.getName())
-                                                 .snippet("Phone : "+rider.getPhone())
                                                  .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
                                      }
 
@@ -504,12 +561,8 @@ public class Rider_Home extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
             super.onBackPressed();
-        }
+        finish();
     }
 
     @Override

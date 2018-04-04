@@ -31,6 +31,7 @@ import android.widget.Button;
 import com.example.wajid.lyft.Common.Common;
 import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
+import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
@@ -130,6 +131,8 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
     //presence system
     DatabaseReference onlineRef,currentUserRef;
 
+    Firebase reference3,reference4;
+
     Runnable drawPathRunnable=new Runnable() {
         @Override
         public void run() {
@@ -194,6 +197,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
         mapFragment.getMapAsync(this);
 
         Common.alreadyExecuted = true;
+
 
         //presence system
         onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");

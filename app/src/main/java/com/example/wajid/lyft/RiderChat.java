@@ -31,6 +31,7 @@ import com.example.wajid.lyft.Model.Sender;
 import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Model.User;
 import com.example.wajid.lyft.Remote.IFCMService;
+import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -57,6 +58,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -105,6 +109,8 @@ public class RiderChat extends AppCompatActivity
 
     Marker mUserMarker;
 
+    Firebase reference3,reference4;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +118,8 @@ public class RiderChat extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Firebase.setAndroidContext(this);
 
         //presence system
         FirebaseDatabase.getInstance().goOnline();
@@ -122,6 +130,21 @@ public class RiderChat extends AppCompatActivity
         {
             Common.Driverids = getIntent().getStringExtra("DriverId");
             Common.customerId = getIntent().getStringExtra("RiderId");
+        }
+
+        try {
+            reference3 = new Firebase("https://lift-ef7da.firebaseio.com/messages/Destination/" + Common.customerId + "_" + Common.Driverids);
+            reference4 = new Firebase("https://lift-ef7da.firebaseio.com/messages/Destination/" + Common.Driverids + "_" + Common.customerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(Common.mPlaceDestination!=null) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("destination",Common.mPlaceDestination);
+
+            reference3.push().setValue(map);
+            reference4.push().setValue(map);
         }
 
         Button contacts = (Button)findViewById(R.id.RiderContact);
@@ -141,13 +164,6 @@ public class RiderChat extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
         imgExpandable = (ImageView) findViewById(R.id.imgExpandable);
-        nBottomSheet = BottomSheetRiderFragment.newInstance("Rider bottom sheet");
-        imgExpandable.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                nBottomSheet.show(getSupportFragmentManager(),nBottomSheet.getTag());
-            }
-        });
 
         setUpLocation();
 
@@ -272,7 +288,7 @@ public class RiderChat extends AppCompatActivity
             public void onKeyEntered(String key, final GeoLocation location) {
 
                 FirebaseDatabase.getInstance().getReference()
-                        .child(keys)
+                        .child(key)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -281,7 +297,6 @@ public class RiderChat extends AppCompatActivity
 
 
                                 //Add driver to map
-
 
                                 mMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(location.latitude,location.longitude))
@@ -352,8 +367,8 @@ public class RiderChat extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-
-            super.onBackPressed();
+        super.onBackPressed();
+        finish();
     }
 
     @Override

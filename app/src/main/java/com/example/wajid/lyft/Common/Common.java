@@ -26,11 +26,15 @@ public class Common {
 
     public static Boolean alreadyExecuted = false;
 
+    public static Boolean commonrequest = false;
+
     public static Location mLastLocation=null;
 
     public static String Driverids;
 
     public static String customerId;
+
+    public static String mPlaceDestination;
 
     public static String RiderId;
 

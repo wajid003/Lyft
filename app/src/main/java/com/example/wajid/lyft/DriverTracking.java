@@ -31,6 +31,7 @@ import com.example.wajid.lyft.Model.Sender;
 import com.example.wajid.lyft.Model.Token;
 import com.example.wajid.lyft.Remote.IFCMService;
 import com.example.wajid.lyft.Remote.IGoogleAPI;
+import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -424,7 +425,9 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
     }
 
     @Override
-    public void finish() {
-        super.finish();
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
+
 }
